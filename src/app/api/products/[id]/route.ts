@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/Mongoose';
 import mongoose from 'mongoose';
 import { Product } from '@/models/Product';
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -48,7 +48,7 @@ export async function GET(
 
 
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -63,17 +63,14 @@ export async function PUT(
 
     const body = await request.json();
     
-    if (body.price !== undefined && body.price < 0) {
+    // Kiểm tra dữ liệu đầu vào
+    if (!body || Object.keys(body).length === 0) {
       return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Price cannot be negative',
-          field: 'price',
-          value: body.price
-        },
+        { success: false, error: 'No data provided' },
         { status: 400 }
       );
     }
+
     // Cập nhật sản phẩm (new: true để trả về document sau khi update)
     const updatedProduct = await Product.findByIdAndUpdate(
       params.id,
@@ -107,7 +104,7 @@ export async function PUT(
 
 // DELETE - Xóa sản phẩm
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
