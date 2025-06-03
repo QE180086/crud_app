@@ -3,10 +3,8 @@ import { connectDB } from '@/lib/Mongoose';
 import mongoose from 'mongoose';
 import { Product } from '@/models/Product';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, context: { params: { id: string } }) {
+  const { params } = context;
   try {
     await connectDB();
 
