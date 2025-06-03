@@ -3,13 +3,21 @@ import { connectDB } from '@/lib/Mongoose';
 import mongoose from 'mongoose';
 import { Product } from '@/models/Product';
 
-export async function GET(request: NextRequest, context: { params: { id: string } }) {
-  const { params } = context;
+export async function GET(request: NextRequest) {
+  const url = new URL(request.url);
+  const id = url.pathname.split('/').pop();
+
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    return NextResponse.json(
+      { success: false, error: 'Invalid product ID' },
+      { status: 400 }
+    );
+  }
   try {
     await connectDB();
 
     // Kiểm tra ID có hợp lệ không
-    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { success: false, error: 'Invalid product ID' },
         { status: 400 }
@@ -17,7 +25,7 @@ export async function GET(request: NextRequest, context: { params: { id: string 
     }
 
     // Tìm sản phẩm theo ID
-    const product = await Product.findById(params.id);
+    const product = await Product.findById(id);
 
     // Nếu không tìm thấy sản phẩm
     if (!product) {
@@ -45,14 +53,21 @@ export async function GET(request: NextRequest, context: { params: { id: string 
 }
 
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest) {
+  const url = new URL(request.url);
+  const id = url.pathname.split('/').pop();
+
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    return NextResponse.json(
+      { success: false, error: 'Invalid product ID' },
+      { status: 400 }
+    );
+  }
+
   try {
     await connectDB();
 
-    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { success: false, error: 'Invalid product ID' },
         { status: 400 }
@@ -71,7 +86,7 @@ export async function PUT(
 
     // Cập nhật sản phẩm (new: true để trả về document sau khi update)
     const updatedProduct = await Product.findByIdAndUpdate(
-      params.id,
+      id,
       body,
       { new: true, runValidators: true }
     );
@@ -101,21 +116,27 @@ export async function PUT(
 }
 
 // DELETE - Xóa sản phẩm
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest) {
+  const url = new URL(request.url);
+  const id = url.pathname.split('/').pop();
+
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    return NextResponse.json(
+      { success: false, error: 'Invalid product ID' },
+      { status: 400 }
+    );
+  }
   try {
     await connectDB();
 
-    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { success: false, error: 'Invalid product ID' },
         { status: 400 }
       );
     }
 
-    const deletedProduct = await Product.findByIdAndDelete(params.id);
+    const deletedProduct = await Product.findByIdAndDelete(id);
 
     if (!deletedProduct) {
       return NextResponse.json(
@@ -127,7 +148,7 @@ export async function DELETE(
     return NextResponse.json({
       success: true,
       message: 'Product deleted successfully',
-      deletedId: params.id
+      deletedId: id
     });
 
   } catch (error: any) {
