@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useEffect, useState } from "react";
-import RegisterForm from "../auth/register/page";
-import LoginForm from "../auth/login/page";
+import LoginForm from "./LoginForm";
+import RegisterForm from "./RegisterForm";
+
 
 const Header = () => {
   const [showRegister, setShowRegister] = useState(false);
