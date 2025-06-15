@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { TrashIcon, PencilIcon, EyeIcon } from '@heroicons/react/24/outline';
+import Header from './component/Header';
 
 interface Product {
   _id?: string;
@@ -76,7 +77,7 @@ export default function ProductManagement() {
       if (cloudRes.ok) {
         imageUrl = cloudData.secure_url;
       } else {
-         console.error('Upload error', cloudData);
+        console.error('Upload error', cloudData);
         alert('Upload ảnh thất bại!');
         return;
       }
@@ -91,7 +92,7 @@ export default function ProductManagement() {
         name: form.name,
         description: form.description,
         price: form.price,
-        image: imageUrl, // Gửi URL ảnh lên server
+        image: imageUrl,
       }),
     });
 
@@ -155,9 +156,15 @@ export default function ProductManagement() {
     });
     setShowEditModal(true);
   };
-
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  useEffect(() => {
+    const token = localStorage?.getItem("token");
+    setIsLoggedIn(!!token);
+  }, []);
   return (
+
     <div className="max-w-6xl mx-auto p-6 bg-gray-50 min-h-screen">
+      <Header />
       {/* Modal xem chi tiết sản phẩm */}
       {showDetailModal && selectedProduct && (
         <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
@@ -214,7 +221,7 @@ export default function ProductManagement() {
       )}
 
       {/* Modal chỉnh sửa sản phẩm */}
-      {showEditModal && selectedProduct && (
+      {isLoggedIn && showEditModal && selectedProduct && (
         <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
             <div className="flex justify-between items-start mb-4">
@@ -278,68 +285,71 @@ export default function ProductManagement() {
           </div>
         </div>
       )}
-
       <div className="bg-white rounded-lg shadow-md p-6">
         <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">Quản lý Sản phẩm</h1>
-
-        {/* Form thêm sản phẩm */}
-        <div className="bg-blue-50 p-6 rounded-lg mb-8">
-          <h2 className="text-xl font-semibold text-blue-800 mb-4">Thêm sản phẩm mới</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tên sản phẩm</label>
-                <input
-                  type="text"
-                  placeholder="Nhập tên sản phẩm"
-                  className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả</label>
-                <input
-                  type="text"
-                  placeholder="Nhập mô tả"
-                  className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Giá (VNĐ)</label>
-                <input
-                  type="number"
-                  placeholder="Nhập giá"
-                  className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  value={form.price}
-                  onChange={(e) => setForm({ ...form, price: e.target.value })}
-                  required
-                  min="0"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Ảnh sản phẩm</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  onChange={handleFileChange}
-                />
-              </div>
+        {isLoggedIn && (
+          <>
+            {/* Form thêm sản phẩm */}
+            < div className="bg-blue-50 p-6 rounded-lg mb-8">
+              <h2 className="text-xl font-semibold text-blue-800 mb-4">Thêm sản phẩm mới</h2>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Tên sản phẩm</label>
+                    <input
+                      type="text"
+                      placeholder="Nhập tên sản phẩm"
+                      className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả</label>
+                    <input
+                      type="text"
+                      placeholder="Nhập mô tả"
+                      className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      value={form.description}
+                      onChange={(e) => setForm({ ...form, description: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Giá (VNĐ)</label>
+                    <input
+                      type="number"
+                      placeholder="Nhập giá"
+                      className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      value={form.price}
+                      onChange={(e) => setForm({ ...form, price: e.target.value })}
+                      required
+                      min="0"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Ảnh sản phẩm</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      onChange={handleFileChange}
+                    />
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md shadow transition duration-200"
+                >
+                  Thêm sản phẩm
+                </button>
+              </form>
             </div>
-            <button
-              type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md shadow transition duration-200"
-            >
-              Thêm sản phẩm
-            </button>
-          </form>
-        </div>
+          </>
+        )}
 
+        {/* Hiển thị cảnh báo nếu không có sản phẩm */}
         {/* Bộ lọc và sắp xếp */}
         <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6 shadow-sm">
           <h2 className="text-lg font-semibold text-gray-700 mb-3">Tìm kiếm & Sắp xếp</h2>
@@ -421,21 +431,25 @@ export default function ProductManagement() {
                       >
                         <EyeIcon className="h-5 w-5" />
                       </button>
-                      <button
-                        onClick={() => handleEditClick(product)}
-                        className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
-                        title="Chỉnh sửa"
-                      >
-                        <PencilIcon className="h-5 w-5" />
-                      </button>
-                      <button
-                        onClick={() => product._id && handleDelete(product._id)}
-                        className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
-                        title="Xóa"
-                        disabled={isDeleting}
-                      >
-                        <TrashIcon className="h-5 w-5" />
-                      </button>
+                      {isLoggedIn && (
+                        <>
+                          <button
+                            onClick={() => handleEditClick(product)}
+                            className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
+                            title="Chỉnh sửa"
+                          >
+                            <PencilIcon className="h-5 w-5" />
+                          </button>
+                          <button
+                            onClick={() => product._id && handleDelete(product._id)}
+                            className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+                            title="Xóa"
+                            disabled={isDeleting}
+                          >
+                            <TrashIcon className="h-5 w-5" />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -469,6 +483,6 @@ export default function ProductManagement() {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

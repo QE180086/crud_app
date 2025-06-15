@@ -16,7 +16,6 @@ export async function GET(request: NextRequest) {
   try {
     await connectDB();
 
-    // Kiểm tra ID có hợp lệ không
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { success: false, error: 'Invalid product ID' },
@@ -24,10 +23,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Tìm sản phẩm theo ID
     const product = await Product.findById(id);
 
-    // Nếu không tìm thấy sản phẩm
     if (!product) {
       return NextResponse.json(
         { success: false, error: 'Product not found' },
@@ -76,7 +73,6 @@ export async function PUT(request: NextRequest) {
 
     const body = await request.json();
     
-    // Kiểm tra dữ liệu đầu vào
     if (!body || Object.keys(body).length === 0) {
       return NextResponse.json(
         { success: false, error: 'No data provided' },
@@ -84,7 +80,6 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Cập nhật sản phẩm (new: true để trả về document sau khi update)
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
       body,
@@ -115,7 +110,7 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-// DELETE - Xóa sản phẩm
+// DELETE
 export async function DELETE(request: NextRequest) {
   const url = new URL(request.url);
   const id = url.pathname.split('/').pop();

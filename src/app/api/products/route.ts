@@ -29,13 +29,13 @@ export async function GET(request: Request) {
     const sort = searchParams.get('sort') || 'price';
     const order = searchParams.get('order') || 'asc';
 
-    // Xây dựng query
+    // query
     const query: any = {};
     if (name) {
-      query.name = { $regex: name, $options: 'i' }; // Tìm kiếm không phân biệt hoa thường
+      query.name = { $regex: name, $options: 'i' };
     }
 
-    // Xây dựng sort
+    //  sort
     const sortOptions: any = {};
     sortOptions[sort] = order === 'asc' ? 1 : -1;
 
@@ -45,7 +45,6 @@ export async function GET(request: Request) {
       .skip((page - 1) * limit)
       .limit(limit);
 
-    // Đếm tổng số sản phẩm phù hợp (cho pagination)
     const total = await Product.countDocuments(query);
 
     return NextResponse.json({
