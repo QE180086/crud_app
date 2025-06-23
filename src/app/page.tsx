@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { TrashIcon, PencilIcon, EyeIcon } from '@heroicons/react/24/outline';
@@ -101,6 +100,37 @@ export default function ProductManagement() {
       fetchProducts();
     }
   };
+
+const handleAddToCart = async (product: any) => {
+  const userEmail = localStorage.getItem("userEmail");
+  if (!userEmail) {
+    alert("Bạn cần đăng nhập để thêm vào giỏ hàng.");
+    return;
+  }
+
+  try {
+    await fetch("/api/cart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: userEmail,
+        product: {
+          productId: product._id,
+          name: product.name,
+          price: product.price,
+          quantity: 1,
+          image: product.image || '', 
+        },
+      }),
+    });
+window.dispatchEvent(new CustomEvent("cart-updated"));
+    alert(" Đã thêm vào giỏ hàng!");
+  } catch (error) {
+    console.error("Lỗi khi thêm vào giỏ hàng", error);
+    alert(" Thêm vào giỏ hàng thất bại.");
+  }
+};
+
 
 
   const handleEdit = async (e: React.FormEvent) => {
@@ -408,53 +438,61 @@ export default function ProductManagement() {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide Internationale-y divide-gray-200">
-              {products.map((product) => (
-                <tr key={product._id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="font-medium text-gray-900">{product.name}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-gray-500 line-clamp-2">{product.description}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="font-semibold text-blue-600">
-                      {new Intl.NumberFormat('vi-VN').format(product.price)} đ
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleViewDetail(product)}
-                        className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
-                        title="Xem chi tiết"
-                      >
-                        <EyeIcon className="h-5 w-5" />
-                      </button>
-                      {isLoggedIn && (
-                        <>
-                          <button
-                            onClick={() => handleEditClick(product)}
-                            className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
-                            title="Chỉnh sửa"
-                          >
-                            <PencilIcon className="h-5 w-5" />
-                          </button>
-                          <button
-                            onClick={() => product._id && handleDelete(product._id)}
-                            className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
-                            title="Xóa"
-                            disabled={isDeleting}
-                          >
-                            <TrashIcon className="h-5 w-5" />
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+            <tbody className="bg-white divide-y divide-gray-200">
+  {products.map((product) => (
+    <tr key={product._id} className="hover:bg-gray-50">
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="font-medium text-gray-900">{product.name}</div>
+      </td>
+      <td className="px-6 py-4">
+        <div className="text-gray-500 line-clamp-2">{product.description}</div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <span className="font-semibold text-blue-600">
+          {new Intl.NumberFormat('vi-VN').format(product.price)} đ
+        </span>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+        <div className="flex space-x-2">
+          <button
+            onClick={() => handleViewDetail(product)}
+            className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
+            title="Xem chi tiết"
+          >
+            <EyeIcon className="h-5 w-5" />
+          </button>
+          {isLoggedIn && (
+            <>
+              <button
+                onClick={() => handleEditClick(product)}
+                className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
+                title="Chỉnh sửa"
+              >
+                <PencilIcon className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => product._id && handleDelete(product._id)}
+                className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+                title="Xóa"
+                disabled={isDeleting}
+              >
+                <TrashIcon className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => handleAddToCart(product)}
+                className="text-yellow-600 hover:text-yellow-800 p-1 rounded hover:bg-yellow-50"
+                title="Thêm vào giỏ hàng"
+              >
+                🛒
+              </button>
+            </>
+          )}
+        </div>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
           </table>
         </div>
 
